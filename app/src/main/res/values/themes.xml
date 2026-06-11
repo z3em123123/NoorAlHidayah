@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.NoorAlHidayah" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/night_sky</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+
+    <style name="Theme.NoorAlHidayah.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/night_sky</item>
+        <item name="postSplashScreenTheme">@style/Theme.NoorAlHidayah</item>
+    </style>
+
+    <!-- لون خلنيا التوويف -->
+    <color name="night_sky">#FF0F172A</color>
+    <color name="sky_blue">#FF38BDF8</color>
+    <color name="emerald">#FF10B981</color>
+    <color name="gold">#FFF59E0B</color>
+</resources>
