@@ -1,0 +1,14 @@
+package com.noor.alhidayah.data.repository
+import com.google.firebase.auth.FirebaseAuth;import com.google.firebase.auth.FirebaseAuthUserCollisionException;import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import com.google.firebase.firestore.FirebaseFirestore;import com.noor.alhidayah.data.model.User
+import kotlinx.coroutines.channels.awaitClose;import kotlinx.coroutines.flow.Flow;import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await;import javax.inject.Inject;import javax.inject.Singleton
+@Singleton class AuthRepository @Inject constructor(private val firebaseAuth:FirebaseAuth,private val firestore:FirebaseFirestore){
+    fun getCurrentUser():Flow<User?>=callbackFlow{val listener=FirebaseAuth.AuthStateListener{auth->val u=auth.currentUser;if(u!=null){try{trySend(getUserFromFirestore(u.uid))}catch(e:Exception){trySend(null)}}else trySend(null)};firebaseAuth.addAuthStateListener(listener);awaitClose{firebaseAuth.removeAuthStateListener(listener)}}
+    suspend fun login(email:String,password:String):Result<User>=try{val r=firebaseAuth.signInWithEmailAndPassword(email,password).await();Result.success(getUserFromFirestore(r.user?.uid?:""))}catch(e:Exception){Result.failure(e)}
+    suspend fun register(email:String,password:String,displayName:String):Result<User>=try{val r=firebaseAuth.createUserWithEmailAndPassword(email,password).await();val uid=r.user?.uid?:throw Exception("failed");val user=User(id=uid,email=email,displayName=displayName);firestore.collection("users").document(uid).set(user.toFirestoreMap()).await();Result.success(user)}catch(e:FirebaseAuthUserCollisionException){Result.failure(Exception("email exists"))}catch(e:FirebaseAuthWeakPasswordException){Result.failure(Exception("weak password"))}catch(e:Exception){Result.failure(e)}
+    fun signOut(){firebaseAuth.signOut()}
+    suspend fun resetPassword(email:String):Result<Unit>=try{firebaseAuth.sendPasswordResetEmail(email).await();Result.success(Unit)}catch(e:Exception){Result.failure(e)}
+    private suspend fun getUserFromFirestore(userId:String):User{val doc=firestore.collection("users").document(userId).get().await();return if(doc.exists()) User.fromFirestore(userId,doc.data?:emptyMap()) else{val fu=firebaseAuth.currentUser;val u=User(id=userId,email=fu?.email?:"",displayName=fu?.displayName?:"");firestore.collection("users").document(userId).set(u.toFirestoreMap()).await();u}}
+    suspend fun updateTasbihCount(userId:String,count:Long):Result<Unit>=try{firestore.collection("users").document(userId).update("totalTasbihCount",count).await();Result.success(Unit)}catch(e:Exception){Result.failure(e)}
+}
