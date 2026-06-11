@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- أذونات الإنترنت -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- أذونات الموقع الجغرافي لمواقيت الصلاة -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- أذونات التنبيهات (للأذان) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
+    <!-- إذن الاهتزاز (Haptic Feedback للمسبحة) -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- إذن منع الهاتف من النوم أثناء التسبيح -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:name=".NoorAlHidayahApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="نور الهداية"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.NoorAlHidayah"
+        tools:targetApi="34">
+
+        <!-- شاشة البداية (Splash) -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.NoorAlHidayah.Splash"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:windowSoftInputMode="adjustResize">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Deep Links للملف الشخصي العام -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="nooralhidayah.app"
+                    android:pathPrefix="/profile" />
+            </intent-filter>
+        </activity>
+
+        <!-- خدمة تشغيل الأذان في الخلفية -->
+        <service
+            android:name=".service.AthanService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <!-- مستمع الإقلاع لإعادة جدولة التنبيهات -->
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- مستمع تغيير المنطقة الزمنية -->
+        <receiver
+            android:name=".receiver.TimeZoneChangeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>
