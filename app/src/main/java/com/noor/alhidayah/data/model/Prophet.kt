@@ -1,0 +1,2 @@
+package com.noor.alhidayah.data.model
+data class Prophet(val id:String,val name:String,val nameEn:String,val title:String,val imageRes:Int,val story:String,val summary:String,val verses:List<String>=emptyList(),val miracles:List<String>=emptyList())
